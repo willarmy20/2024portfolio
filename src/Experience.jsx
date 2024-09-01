@@ -1,88 +1,96 @@
-import {Text,Html,ContactShadows,PresentationControls,Float,Environment,useGLTF,OrbitControls,} from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
-import { useRef, useState } from "react";
-import * as THREE from 'three';
-
+import React, { useEffect, useState } from 'react';
+import {
+  Text,
+  Html,
+  ContactShadows,
+  PresentationControls,
+  Float,
+  Environment,
+  useGLTF,
+  OrbitControls,
+} from '@react-three/drei';
+import { useMediaQuery } from 'react-responsive';
 
 export default function Experience() {
   const computer = useGLTF(
-    "https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/macbook/model.gltf"
+    'https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/macbook/model.gltf'
   );
-  console.log(computer);
 
-  // const computerRef = useRef();
-  // const [hovered, setHovered] = useState(false); 
+  // State for model scale, positions, and font size
+  const [scale, setScale] = useState(1);
+  const [computerPosition, setComputerPosition] = useState([0, -1.2, 0]);
+  const [textPosition, setTextPosition] = useState([2, 0.75, 0.75]);
+  const [fontSize, setFontSize] = useState(1);
 
-  // useFrame((state,delta) => {
-  //   if(computerRef.current) {
-  //       computerRef.current.scale.x = THREE.MthUtils.lerp(computerRef.current.scale.x, hovered ? 1.4 : 1, 0.1)
-  //       computerRef.current.scale.y = THREE.MthUtils.lerp(computerRef.current.scale.y, hovered ? 1.4 : 1, 0.1)
-  //       computerRef.current.scale.z = THREE.MthUtils.lerp(computerRef.current.scale.z, hovered ? 1.4 : 1, 0.1)
-  //       computerRef.current.position.z = THREE.MthUtils.lerp(computerRef.current.position.z, hovered ? -1.5 : 0, 0.1)
-  //   }
-  // });
+  // Media query to detect screen size
+  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
+
+  useEffect(() => {
+    if (isSmallScreen) {
+      setScale(0.5); // Reduce the scale for small screens
+      setComputerPosition([0, -1.5, 1]); // Center the computer under the name
+      setTextPosition([0, 0.75, 0]); // Move the name closer to the computer
+      setFontSize(0.65); // Smaller font size for small screens
+    } else {
+      setScale(1); // Default scale for larger screens
+      setComputerPosition([0, -1.2, 0]); // Original position of the computer
+      setTextPosition([2, 0.75, 0.75]); // Original position of the text
+      setFontSize(0.50); // Default font size for larger screens
+    }
+  }, [isSmallScreen]);
+
   return (
     <>
       <Environment preset="city" />
-
-      <color args={["#241a1a"]} attach="background" />
-
+      <color args={['#241a1a']} attach="background" />
       <OrbitControls makeDefault />
 
-      <PresentationControls 
-      global
-      rotation={ [ 0.13, 0.1, 0 ] }
-      polar={ [ - 0.4, 0.2 ] }
-      azimuth={ [ - 1, 0.75 ] }
-      config={ { mass: 2, tension: 400 } }
-      snap={ { mass: 4, tension: 400 } }
+      <PresentationControls
+        global
+        rotation={[0.13, 0.1, 0]}
+        polar={[-0.4, 0.2]}
+        azimuth={[-1, 0.75]}
+        config={{ mass: 2, tension: 400 }}
+        snap={{ mass: 4, tension: 400 }}
       >
         <Float rotationIntensity={0.4}>
-        <rectAreaLight
-        width={ 2.5 }
-        height={ 1.65 }
-        intensity={ 65 }
-        color={ '#ff6900' }
-        rotation={ [ - 0.1, Math.PI, 0 ] }
-        position={ [ 0, 0.55, - 1.15 ] }
-    />
-
-        <primitive
-            // ref={computerRef}
-            object={ computer.scene }
-            position-y={ - 1.2 }
-            rotation-x={ 0.13 }
-            // onPointerOver={()=> setHovered(true)}
-            // onPointerOut={()=> setHovered(false)}
-        >
-            <Html 
-            transform
-            wrapperClass="htmlScreen"
-            distanceFactor={ 1.17 }
-            position={ [ 0, 1.56, - 1.4 ] }
-            rotation-x={ - 0.256 }
-            // scale={hovered ? 1.4 : 1}
+          <rectAreaLight
+            width={2.5}
+            height={1.65}
+            intensity={65}
+            color={'#ff6900'}
+            rotation={[-0.1, Math.PI, 0]}
+            position={[0, 0.55, -1.15]}
+          />
+          <primitive
+            object={computer.scene}
+            position={computerPosition} // Apply the dynamic position here
+            rotation-x={0.13}
+            scale={[scale, scale, scale]} // Apply the dynamic scale here
+          >
+            <Html
+              transform
+              wrapperClass="htmlScreen"
+              distanceFactor={1.17}
+              position={[0, 1.56, -1.4]}
+              rotation-x={-0.256}
             >
-            <iframe src="https://htmlsite.onrender.com/" />
+              <iframe src="https://htmlsite.onrender.com/" />
             </Html>
-        </primitive>
-        <Text
-        font="./bangers-v20-latin-regular.woff"
-        fontSize={ 1 }
-        position={ [ 2, 0.75, 0.75 ] }
-        rotation-y={ - 1.25 }
-        maxWidth={ 2 }
-        >
+          </primitive>
+          <Text
+            font="./bangers-v20-latin-regular.woff"
+            fontSize={fontSize} // Apply the dynamic font size here
+            position={textPosition} // Apply the dynamic position here
+            rotation-y={isSmallScreen ? 0 : -1.25} // Adjust rotation for small screens
+            maxWidth={2}
+          >
             Laquinta Williams
-        </Text>
+          </Text>
         </Float>
       </PresentationControls>
-      <ContactShadows
-       position-y={ - 1.4 }
-       opacity={ 0.4 }
-       scale={ 5 }
-       blur={ 2.4 }
-        />
+      <ContactShadows position-y={-1.4} opacity={0.4} scale={5} blur={2.4} />
     </>
   );
 }
+
